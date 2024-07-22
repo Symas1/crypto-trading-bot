@@ -14,11 +14,22 @@ defmodule Naive.Trader do
 
   require Logger
 
-  def start_link(args) do
+  def start_link(%{} = args) do
     GenServer.start_link(__MODULE__, args, name: :trader)
   end
 
-  def init(args) do
-    {:ok, args}
+  def init(%{symbol: symbol, profit_interval: profit_interval}) do
+    symbol = String.upcase(symbol)
+
+    Logger.info("Initializing new trader for #{symbol}")
+
+    tick_size = fetch_tick_size(symbol)
+
+    {:ok,
+     %State{
+       symbol: symbol,
+       profit_interval: profit_interval,
+       tick_size: tick_size
+     }}
   end
 end
