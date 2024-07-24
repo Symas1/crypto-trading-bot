@@ -90,6 +90,10 @@ defmodule Naive.Trader do
     {:stop, :normal, :state}
   end
 
+  def handle_cast(%TradeEvent{}, state) do
+    {:noreply, state}
+  end
+
   defp calculate_sell_price(buy_price, profit_interval, tick_size) do
     # TODO: remove hardcoded value
     fee = "1.001"
