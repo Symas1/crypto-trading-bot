@@ -84,10 +84,10 @@ defmodule Naive.Trader do
             order_id: order_id,
             orig_qty: quantity
           }
-        } = _state
+        } = state
       ) do
     Logger.info("Trade finished, trader will now exit")
-    {:stop, :normal, :state}
+    {:stop, :normal, state}
   end
 
   def handle_cast(%TradeEvent{}, state) do
