@@ -43,8 +43,6 @@ defmodule Streamer.Binance do
         "#{trade_event.symbol}@#{trade_event.price}"
     )
 
-    # TODO: `Naive` and `Streamer` have a two-way dependency.
-    #   Apps should not know about each other.
-    Naive.send_event(trade_event)
+    Phoenix.PubSub.broadcast(Streamer.PubSub, "TRADE_EVENTS:#{trade_event.symbol}", trade_event)
   end
 end
