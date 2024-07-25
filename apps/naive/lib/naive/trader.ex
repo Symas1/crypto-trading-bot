@@ -28,6 +28,8 @@ defmodule Naive.Trader do
 
     tick_size = fetch_tick_size(symbol)
 
+    Phoenix.PubSub.subscribe(Streamer.PubSub, "TRADE_EVENTS:#{symbol}")
+
     {:ok,
      %State{
        symbol: symbol,
