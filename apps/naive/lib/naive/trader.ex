@@ -38,7 +38,7 @@ defmodule Naive.Trader do
      }}
   end
 
-  def handle_cast(%TradeEvent{price: price}, %State{symbol: symbol, buy_order: nil} = state) do
+  def handle_info(%TradeEvent{price: price}, %State{symbol: symbol, buy_order: nil} = state) do
     # TODO: remove hardcoded value
     quantity = "100"
 
@@ -53,7 +53,7 @@ defmodule Naive.Trader do
     }
   end
 
-  def handle_cast(
+  def handle_info(
         %TradeEvent{buyer_order_id: order_id, quantity: quantity},
         %State{
           symbol: symbol,
@@ -79,7 +79,7 @@ defmodule Naive.Trader do
     {:norepy, %{state | sell_order: order}}
   end
 
-  def handle_cast(
+  def handle_info(
         %TradeEvent{seller_order_id: order_id, quantity: quantity},
         %State{
           sell_order: %Binance.OrderResponse{
@@ -92,7 +92,7 @@ defmodule Naive.Trader do
     {:stop, :normal, state}
   end
 
-  def handle_cast(%TradeEvent{}, state) do
+  def handle_info(%TradeEvent{}, state) do
     {:noreply, state}
   end
 
