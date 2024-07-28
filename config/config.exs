@@ -18,7 +18,7 @@ import Config
 #
 
 config :logger,
-  level: :info
+  level: :debug
 
 # Import secrets with Binance keys
 if File.exists?("config/secrets.exs") do
