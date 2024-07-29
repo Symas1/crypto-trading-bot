@@ -114,7 +114,7 @@ defmodule BinanceMock do
       )
 
     order_book =
-      if order.size == "SELL" do
+      if order.side == "SELL" do
         Map.replace!(
           order_book,
           :sell_side,
