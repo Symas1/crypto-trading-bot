@@ -18,13 +18,16 @@ defmodule BinanceMock do
     GenServer.start_link(__MODULE__, nil, name: __MODULE__)
   end
 
-  def init(args) do
+  def init(_args) do
     {:ok, %State{}}
   end
 
   def handle_cast(
-        {:add_order, %Binance.Order{symbol: symbol}},
-        %State{order_books: order_books, subscriptions: subscriptions} = state
+        {:add_order, %Binance.Order{symbol: symbol} = order},
+        %State{
+          order_books: order_books,
+          subscriptions: subscriptions
+        } = state
       ) do
     new_subscriptions = subscribe_to_topic(symbol, subscriptions)
     updated_order_books = add_order(order, order_books)
