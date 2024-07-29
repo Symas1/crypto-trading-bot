@@ -44,6 +44,20 @@ defmodule BinanceMock do
     {:reply, id + 1, %{state | fake_order_id: id + 1}}
   end
 
+  def handle_call(
+        {:get_order, symbol, time, order_id},
+        _from,
+        %State{order_books: order_books} = state
+      ) do
+    order_book = Map.get(order_books, :"#{symbol}", %OrderBook{})
+
+    result =
+      (order_book.buy_size ++ order_book.sell_side ++ order_book.historical)
+      |> Enum.find(&(&1.symbol == symbol and &1.time == time and &1.order_id == order_id))
+
+    {:reply, {:ok, result}, state}
+  end
+
   def get_exchange_info do
     Binance.get_exchange_info()
   end
@@ -54,6 +68,10 @@ defmodule BinanceMock do
 
   def order_limit_sell(symbol, quantity, price, "GTC") do
     order_limit(symbol, quantity, price, "SELL")
+  end
+
+  def get_order(symbol, time, order_id) do
+    GenServer.call(__MODULE__, {:get_order, symbol, time, order_id})
   end
 
   defp order_limit(symbol, quantity, price, side) do
