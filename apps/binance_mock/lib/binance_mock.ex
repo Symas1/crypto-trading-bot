@@ -58,6 +58,40 @@ defmodule BinanceMock do
     {:reply, {:ok, result}, state}
   end
 
+  def handle_info(%TradeEvent{} = trade_event, %{order_books: order_books} = state) do
+    order_book = Map.get(order_books, :"#{trade_event.symbol}", %OrderBook{})
+
+    filled_buy_orders =
+      order_book.buy_side
+      |> Enum.take_while(&D.lt?(trade_event.price, &1.price))
+      |> Enum.map(&Map.replace!(&1, :status, "FILLED"))
+
+    filled_sell_orders =
+      order_book.sell_size
+      |> Enum.take_while(&D.gt?(trade_event.price, &1.price))
+      |> Enum.map(&Map.replace!(&1, :status, "FILLED"))
+
+    (filled_buy_orders ++ filled_sell_orders)
+    |> Enum.map(&convert_order_to_event(&1, trade_event.event_time))
+    |> Enum.each(&broadcast_trade_event/1)
+
+    remaining_buy_orders = order_book.buy_side |> Enum.drop(length(filled_buy_orders))
+    remaining_sell_orders = order_book.sell_side |> Enum.drop(length(filled_sell_orders))
+
+    order_books =
+      Map.replace!(
+        order_books,
+        :"#{trade_event.symbol}",
+        %{
+          buy_side: remaining_buy_orders,
+          sell_side: remaining_sell_orders,
+          historical: filled_buy_orders ++ filled_sell_orders ++ order_book.historical
+        }
+      )
+
+    {:noreply, %{state | order_books: order_books}}
+  end
+
   def get_exchange_info do
     Binance.get_exchange_info()
   end
@@ -170,5 +204,24 @@ defmodule BinanceMock do
       )
       | transact_time: order.time
     }
+  end
+
+  defp convert_order_to_event(%Binance.Order{} = order, time) do
+    %TradeEvent{
+      event_type: order.type,
+      event_time: time - 1,
+      symbol: order.symbol,
+      trade_id: Integer.floor_div(time, 1000),
+      price: order.price,
+      quantity: order.orig_qty,
+      buyer_order_id: order.order_id,
+      seller_order_id: order.order_id,
+      trade_time: time - 1,
+      buyer_market_maker: false
+    }
+  end
+
+  defp broadcast_trade_event(%TradeEvent{} = trade_event) do
+    Phoenix.PubSub.broadcast(Streamer.PubSub, "TRADE_EVENTS:#{trade_event.symbol}", trade_event)
   end
 end
