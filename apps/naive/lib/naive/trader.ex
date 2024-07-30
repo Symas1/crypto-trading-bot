@@ -1,14 +1,3 @@
-defmodule State do
-  @enforce_keys [:symbol, :profit_interval, :tick_size]
-  defstruct [
-    :symbol,
-    :buy_order,
-    :sell_order,
-    :profit_interval,
-    :tick_size
-  ]
-end
-
 defmodule Naive.Trader do
   use GenServer
 
@@ -16,6 +5,17 @@ defmodule Naive.Trader do
   alias Decimal, as: D
 
   require Logger
+
+  defmodule State do
+    @enforce_keys [:symbol, :profit_interval, :tick_size]
+    defstruct [
+      :symbol,
+      :buy_order,
+      :sell_order,
+      :profit_interval,
+      :tick_size
+    ]
+  end
 
   def start_link(%{} = args) do
     GenServer.start_link(__MODULE__, args, name: :trader)
