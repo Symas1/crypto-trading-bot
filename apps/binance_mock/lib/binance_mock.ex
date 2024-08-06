@@ -11,7 +11,7 @@ defmodule BinanceMock do
   end
 
   defmodule OrderBook do
-    defstruct buy_side: [], sell_size: [], historical: []
+    defstruct buy_side: [], sell_side: [], historical: []
   end
 
   def start_link(_args) do
@@ -52,7 +52,7 @@ defmodule BinanceMock do
     order_book = Map.get(order_books, :"#{symbol}", %OrderBook{})
 
     result =
-      (order_book.buy_size ++ order_book.sell_side ++ order_book.historical)
+      (order_book.buy_side ++ order_book.sell_side ++ order_book.historical)
       |> Enum.find(&(&1.symbol == symbol and &1.time == time and &1.order_id == order_id))
 
     {:reply, {:ok, result}, state}
@@ -67,7 +67,7 @@ defmodule BinanceMock do
       |> Enum.map(&Map.replace!(&1, :status, "FILLED"))
 
     filled_sell_orders =
-      order_book.sell_size
+      order_book.sell_side
       |> Enum.take_while(&D.gt?(trade_event.price, &1.price))
       |> Enum.map(&Map.replace!(&1, :status, "FILLED"))
 
