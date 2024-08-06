@@ -78,7 +78,7 @@ defmodule Naive.Trader do
     {:ok, %Binance.OrderResponse{} = order} =
       @binance_client.order_limit_sell(symbol, quantity, sell_price, "GTC")
 
-    {:norepy, %{state | sell_order: order}}
+    {:noreply, %{state | sell_order: order}}
   end
 
   def handle_info(
