@@ -10,8 +10,7 @@ defmodule Naive.Application do
     children = [
       {
         DynamicSupervisor,
-        strategy: :one_for_one,
-        name: Naive.DynamicSymbolSupervisor
+        strategy: :one_for_one, name: Naive.DynamicSymbolSupervisor
       }
       # Starts a worker by calling: Naive.Worker.start_link(arg)
       # {Naive.Worker, arg}
