@@ -71,7 +71,7 @@ defmodule Naive.Trader do
       @binance_client.order_limit_sell(symbol, quantity, sell_price, "GTC")
 
     new_state = %{state | sell_order: order}
-    Naive.Leader.notify(:trader_status_updated, new_state)
+    Naive.Leader.notify(:trader_state_updated, new_state)
     {:noreply, new_state}
   end
 
