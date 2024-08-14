@@ -9,11 +9,12 @@ defmodule Naive.Trader do
   @binance_client Application.compile_env(:naive, :binance_client)
 
   defmodule State do
-    @enforce_keys [:symbol, :profit_interval, :tick_size]
+    @enforce_keys [:symbol, :buy_down_interval, :profit_interval, :tick_size]
     defstruct [
       :symbol,
       :buy_order,
       :sell_order,
+      :buy_down_interval,
       :profit_interval,
       :tick_size
     ]
@@ -33,7 +34,17 @@ defmodule Naive.Trader do
     {:ok, state}
   end
 
-  def handle_info(%TradeEvent{price: price}, %State{symbol: symbol, buy_order: nil} = state) do
+  def handle_info(
+        %TradeEvent{price: price},
+        %State{
+          symbol: symbol,
+          buy_order: nil,
+          buy_down_interval: buy_down_interval,
+          tick_size: tick_size
+        } = state
+      ) do
+    price = calculate_buy_price(price, buy_down_interval, tick_size)
+
     # TODO: remove hardcoded value
     quantity = "100"
 
@@ -105,6 +116,23 @@ defmodule Naive.Trader do
     D.to_string(
       D.mult(
         D.div_int(gross_target_price, tick_size),
+        tick_size
+      ),
+      :normal
+    )
+  end
+
+  defp calculate_buy_price(current_price, buy_down_interval, tick_size) do
+    # may be invalid price (not divisible by tick_size)
+    exact_buy_price =
+      D.sub(
+        current_price,
+        D.mult(current_price, buy_down_interval)
+      )
+
+    D.to_string(
+      D.mult(
+        D.div_int(exact_buy_price, tick_size),
         tick_size
       ),
       :normal
