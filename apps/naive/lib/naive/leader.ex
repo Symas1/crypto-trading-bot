@@ -1,6 +1,7 @@
 defmodule Naive.Leader do
   use GenServer
 
+  alias Decimal, as: D
   alias Naive.Trader
 
   require Logger
@@ -109,7 +110,10 @@ defmodule Naive.Leader do
   end
 
   defp fresh_trader_state(settings) do
-    struct(Trader.State, settings)
+    %{
+      struct(Trader.State, settings)
+      | budget: D.div(settings.budget, settings.chunks)
+    }
   end
 
   defp fetch_symbol_settings(symbol) do
