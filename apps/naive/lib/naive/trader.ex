@@ -9,13 +9,24 @@ defmodule Naive.Trader do
   @binance_client Application.compile_env(:naive, :binance_client)
 
   defmodule State do
-    @enforce_keys [:symbol, :buy_down_interval, :profit_interval, :tick_size, :budget, :step_size]
+    @enforce_keys [
+      :symbol,
+      :buy_down_interval,
+      :profit_interval,
+      :rebuy_interval,
+      :rebuy_notified,
+      :tick_size,
+      :budget,
+      :step_size
+    ]
     defstruct [
       :symbol,
       :buy_order,
       :sell_order,
       :buy_down_interval,
       :profit_interval,
+      :rebuy_interval,
+      :rebuy_notified,
       :tick_size,
       :budget,
       :step_size
@@ -147,6 +158,25 @@ defmodule Naive.Trader do
     end
   end
 
+  def handle_info(
+        %TradeEvent{price: current_price},
+        %State{
+          symbol: symbol,
+          buy_order: %Binance.OrderResponse{price: buy_price},
+          rebuy_interval: rebuy_interval,
+          rebuy_notified: false
+        } = state
+      ) do
+    if trigger_rebuy?(buy_price, current_price, rebuy_interval) do
+      Logger.info("Rebuy triggered for #{symbol} trader")
+      new_state = %{state | rebuy_notified: true}
+      Naive.Leader.notify(:rebuy_triggered, new_state)
+      {:noreploy, new_state}
+    else
+      {:noreply, state}
+    end
+  end
+
   def handle_info(%TradeEvent{}, state) do
     {:noreply, state}
   end
@@ -194,5 +224,15 @@ defmodule Naive.Trader do
       D.mult(D.div_int(exact_target_quantity, step_size), step_size),
       :normal
     )
+  end
+
+  defp trigger_rebuy?(buy_price, current_price, rebuy_interval) do
+    rebuy_price =
+      D.sub(
+        buy_price,
+        D.mult(buy_price, rebuy_interval)
+      )
+
+    D.lt?(current_price, rebuy_price)
   end
 end
