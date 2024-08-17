@@ -46,9 +46,7 @@ defmodule Naive.Leader do
     settings = fetch_symbol_settings(symbol)
     trader_state = fresh_trader_state(settings)
 
-    traders =
-      for _i <- 1..settings.chunks,
-          do: start_new_trader(trader_state)
+    traders = [start_new_trader(trader_state)]
 
     {:noreply, %{state | settings: settings, traders: traders}}
   end
