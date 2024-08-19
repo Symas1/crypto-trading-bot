@@ -81,6 +81,7 @@ defmodule Naive.Leader do
         {trader_pid, _},
         %{traders: traders, symbol: symbol, settings: settings} = state
       ) do
+    # TODO: delegate `update` to already existing command `update_trader_state`
     case Enum.find_index(traders, &(&1.pid == trader_pid)) do
       nil ->
         Logger.warning("Rebuy triggered by trader that leader is not aware of")
