@@ -148,7 +148,7 @@ defmodule Naive.Leader do
       struct(Trader.State, settings)
       | id: :os.system_time(:millisecond),
         budget: D.div(settings.budget, settings.chunks),
-        rebuy_interval: false
+        rebuy_notified: false
     }
   end
 
