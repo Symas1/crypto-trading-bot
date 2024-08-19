@@ -10,6 +10,7 @@ defmodule Naive.Trader do
 
   defmodule State do
     @enforce_keys [
+      :id,
       :symbol,
       :buy_down_interval,
       :profit_interval,
@@ -20,6 +21,7 @@ defmodule Naive.Trader do
       :step_size
     ]
     defstruct [
+      :id,
       :symbol,
       :buy_order,
       :sell_order,
@@ -37,10 +39,10 @@ defmodule Naive.Trader do
     GenServer.start_link(__MODULE__, state)
   end
 
-  def init(%State{symbol: symbol} = state) do
+  def init(%State{id: id, symbol: symbol} = state) do
     symbol = String.upcase(symbol)
 
-    Logger.info("Initializing new trader for #{symbol}")
+    Logger.info("[#{id}] Initializing new trader for #{symbol}")
 
     Phoenix.PubSub.subscribe(Streamer.PubSub, "TRADE_EVENTS:#{symbol}")
 
@@ -50,6 +52,7 @@ defmodule Naive.Trader do
   def handle_info(
         %TradeEvent{price: price},
         %State{
+          id: id,
           symbol: symbol,
           buy_order: nil,
           buy_down_interval: buy_down_interval,
@@ -62,7 +65,7 @@ defmodule Naive.Trader do
 
     quantity = calculate_quantity(budget, price, step_size)
 
-    Logger.info("Placing `buy` order for #{symbol} @ #{price}, quantity: #{quantity}")
+    Logger.info("[#{id}] Placing `buy` order for #{symbol} @ #{price}, quantity: #{quantity}")
 
     {:ok, %Binance.OrderResponse{} = order} =
       @binance_client.order_limit_buy(symbol, quantity, price, "GTC")
@@ -91,6 +94,7 @@ defmodule Naive.Trader do
   def handle_info(
         %TradeEvent{buyer_order_id: order_id},
         %State{
+          id: id,
           symbol: symbol,
           buy_order:
             %Binance.OrderResponse{
@@ -113,7 +117,7 @@ defmodule Naive.Trader do
         sell_price = calculate_sell_price(buy_price, profit_interval, tick_size)
 
         Logger.info(
-          "Buy order filled, placing SELL order for " <>
+          "[#{id}] Buy order filled, placing SELL order for " <>
             "#{symbol} @ #{sell_price}), quantity: #{quantity}"
         )
 
@@ -122,7 +126,7 @@ defmodule Naive.Trader do
 
         {:ok, %{state | buy_order: buy_order, sell_order: order}}
       else
-        Logger.info("BUY order partially filled")
+        Logger.info("[#{id}] BUY order partially filled")
         {:ok, %{state | buy_order: buy_order}}
       end
 
@@ -133,6 +137,7 @@ defmodule Naive.Trader do
   def handle_info(
         %TradeEvent{seller_order_id: order_id},
         %State{
+          id: id,
           symbol: symbol,
           sell_order:
             %Binance.OrderResponse{
@@ -150,10 +155,10 @@ defmodule Naive.Trader do
     Naive.Leader.notify(:trader_state_updated, new_state)
 
     if sell_order.status == "FILLED" do
-      Logger.info("Trade finished, trader will now exit")
+      Logger.info("[#{id}] Trade finished, trader will now exit")
       {:stop, :normal, new_state}
     else
-      Logger.info("SELL order partially filled")
+      Logger.info("[#{id}] SELL order partially filled")
       {:ok, new_state}
     end
   end
@@ -161,6 +166,7 @@ defmodule Naive.Trader do
   def handle_info(
         %TradeEvent{price: current_price},
         %State{
+          id: id,
           symbol: symbol,
           buy_order: %Binance.OrderResponse{price: buy_price},
           rebuy_interval: rebuy_interval,
@@ -168,7 +174,7 @@ defmodule Naive.Trader do
         } = state
       ) do
     if trigger_rebuy?(buy_price, current_price, rebuy_interval) do
-      Logger.info("Rebuy triggered for #{symbol} trader")
+      Logger.info("[#{id}] Rebuy triggered for #{symbol} trader")
       new_state = %{state | rebuy_notified: true}
       Naive.Leader.notify(:rebuy_triggered, new_state)
       {:noreply, new_state}
