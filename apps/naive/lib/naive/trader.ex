@@ -171,7 +171,7 @@ defmodule Naive.Trader do
       Logger.info("Rebuy triggered for #{symbol} trader")
       new_state = %{state | rebuy_notified: true}
       Naive.Leader.notify(:rebuy_triggered, new_state)
-      {:noreploy, new_state}
+      {:noreply, new_state}
     else
       {:noreply, state}
     end
