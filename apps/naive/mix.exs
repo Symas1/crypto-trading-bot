@@ -28,6 +28,7 @@ defmodule Naive.MixProject do
     [
       {:binance, "~> 1.0"},
       {:decimal, "~> 2.0"},
+      {:ecto_sqlite3, "~> 0.17"},
       {:phoenix_pubsub, "~> 2.0"},
       {:streamer, in_umbrella: true},
       {:binance_mock, in_umbrella: true}
