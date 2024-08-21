@@ -21,7 +21,11 @@ config :logger,
   level: :info
 
 config :naive,
+  ecto_repos: [Naive.Repo],
   binance_client: BinanceMock
+
+config :naive, Naive.Repo,
+  database: "naive.db"
 
 # Import secrets with Binance keys
 if File.exists?("config/secrets.exs") do
