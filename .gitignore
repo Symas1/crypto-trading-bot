@@ -24,3 +24,8 @@ erl_crash.dump
 
 # secrets should be kept safe
 config/secrets.exs
+
+.DS_Store
+
+# sqlite files
+*.db*
