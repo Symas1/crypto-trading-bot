@@ -17,6 +17,8 @@ Logger.info("Fetching exchange info from Binance to create trading settings")
   rebuy_interval: rebuy_interval
 } = Application.compile_env(:naive, :trading).defaults
 
+timestamp = NaiveDateTime.utc_now() |> NaiveDateTime.truncate(:second)
+
 base_settings = %{
   symbol: "",
   chunks: chunks,
@@ -24,7 +26,9 @@ base_settings = %{
   buy_down_interval: Decimal.new(buy_down_interval),
   profit_interval: Decimal.new(profit_interval),
   rebuy_interval: Decimal.new(rebuy_interval),
-  status: "off"
+  status: :off,
+  inserted_at: timestamp,
+  updated_at: timestamp
 }
 
 Logger.info("Inserting default settings for symbols")
