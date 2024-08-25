@@ -3,6 +3,8 @@ defmodule Naive.Leader do
 
   alias Decimal, as: D
   alias Naive.Trader
+  alias Naive.Repo
+  alias Naive.Schema.Settings
 
   require Logger
 
@@ -154,19 +156,11 @@ defmodule Naive.Leader do
 
   defp fetch_symbol_settings(symbol) do
     symbol_filters = fetch_symbol_filters(symbol)
+    settings = Repo.get_by!(Settings, symbol: symbol)
 
     Map.merge(
-      %{
-        symbol: symbol,
-        chunks: 5,
-        budget: 100,
-        # 0.01% for quick testing
-        buy_down_interval: "0.0001",
-        # -0.12% for quick testing
-        profit_interval: "-0.0012",
-        rebuy_interval: "0.001"
-      },
-      symbol_filters
+      symbol_filters,
+      settings |> Map.from_struct()
     )
   end
 
