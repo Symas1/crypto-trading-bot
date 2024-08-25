@@ -1,0 +1,36 @@
+require Logger
+
+alias Naive.Repo
+alias Naive.Schema.Settings
+
+binance_client = Application.compile_env(:naive, :binance_client)
+
+Logger.info("Fetching exchange info from Binance to create trading settings")
+
+{:ok, %{symbols: symbols}} = binance_client.get_exchange_info()
+
+%{
+  chunks: chunks,
+  budget: budget,
+  buy_down_interval: buy_down_interval,
+  profit_interval: profit_interval,
+  rebuy_interval: rebuy_interval
+} = Application.compile_env(:naive, :trading).defaults
+
+base_settings = %{
+  symbol: "",
+  chunks: chunks,
+  budget: Decimal.new(budget),
+  buy_down_interval: Decimal.new(buy_down_interval),
+  profit_interval: Decimal.new(profit_interval),
+  rebuy_interval: Decimal.new(rebuy_interval),
+  status: "off"
+}
+
+Logger.info("Inserting default settings for symbols")
+
+maps = symbols |> Enum.map(&(%{base_settings | symbol: &1["symbol"]}))
+
+{count, nil} = Repo.insert_all(Settings, maps)
+
+Logger.info("Inserted settings for #{count} symbols")
