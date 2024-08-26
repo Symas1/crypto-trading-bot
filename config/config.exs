@@ -21,7 +21,7 @@ config :logger,
   level: :info
 
 config :naive,
-  ecto_repos: [Naive.Repo, Streamer.Repo],
+  ecto_repos: [Naive.Repo],
   binance_client: BinanceMock,
   trading: %{
     defaults: %{
@@ -33,8 +33,11 @@ config :naive,
     }
   }
 
+config :streamer,
+  ecto_repos: [Streamer.Repo]
+
 config :naive, Naive.Repo, database: "naive.db"
-config :streamer, Streamer.Repo, database: "naive.db"
+config :streamer, Streamer.Repo, database: "streamer.db"
 
 # Import secrets with Binance keys
 if File.exists?("config/secrets.exs") do
