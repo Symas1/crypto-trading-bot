@@ -12,7 +12,8 @@ defmodule Streamer.Application do
       {
         Phoenix.PubSub,
         name: Streamer.PubSub, adapter_name: Phoenix.PubSub.PG2
-      }
+      },
+      {Streamer.DynamicStreamerSupervisor, []}
       # Starts a worker by calling: Streamer.Worker.start_link(arg)
       # {Streamer.Worker, arg}
     ]
