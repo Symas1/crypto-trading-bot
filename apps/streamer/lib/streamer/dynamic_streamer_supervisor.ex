@@ -3,6 +3,8 @@ defmodule Streamer.DynamicStreamerSupervisor do
 
   require Logger
 
+  import Ecto.Query, only: [from: 2]
+
   alias Streamer.Schema.Settings
   alias Streamer.Repo
 
@@ -42,6 +44,10 @@ defmodule Streamer.DynamicStreamerSupervisor do
     end
   end
 
+  def autostart_streaming() do
+    fetch_symbols_to_stream() |> Enum.map(&start_streaming/1)
+  end
+
   defp get_pid(symbol) do
     Process.whereis(:"Elixir.Streamer.Binance-#{symbol}")
   end
@@ -54,5 +60,9 @@ defmodule Streamer.DynamicStreamerSupervisor do
 
   defp start_streamer(symbol) do
     DynamicSupervisor.start_child(Streamer.DynamicStreamerSupervisor, {Streamer.Binance, symbol})
+  end
+
+  defp fetch_symbols_to_stream() do
+    Repo.all(from(s in Settings, where: s.status == :on, select: s.symbol))
   end
 end
