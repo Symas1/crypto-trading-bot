@@ -1,7 +1,9 @@
 defmodule Streamer.DynamicStreamerSupervisor do
-  alias Streamer.Schema.Settings
-  require Logger
   use DynamicSupervisor
+
+  require Logger
+
+  alias Streamer.Schema.Settings
   alias Streamer.Repo
 
   def start_link(init_arg) do
