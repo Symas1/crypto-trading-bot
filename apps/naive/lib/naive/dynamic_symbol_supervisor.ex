@@ -3,6 +3,8 @@ defmodule Naive.DynamicSymbolSupervisor do
 
   require Logger
 
+  import Ecto.Query, only: [from: 2]
+
   alias Naive.Repo
   alias Naive.Schema.Settings
 
@@ -46,6 +48,10 @@ defmodule Naive.DynamicSymbolSupervisor do
     end
   end
 
+  def autostart_trading() do
+    fetch_symbols_to_trade() |> Enum.map(&start_trading/1)
+  end
+
   defp get_pid(symbol) do
     Process.whereis(:"Elixir.Naive.SymbolSupervisor-#{symbol}")
   end
@@ -60,6 +66,15 @@ defmodule Naive.DynamicSymbolSupervisor do
     DynamicSupervisor.start_child(
       Naive.DynamicSymbolSupervisor,
       {Naive.SymbolSupervisor, symbol}
+    )
+  end
+
+  defp fetch_symbols_to_trade do
+    Repo.all(
+      from(s in Settings,
+        where: s.status == :on,
+        select: s.symbol
+      )
     )
   end
 end
