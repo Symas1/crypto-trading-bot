@@ -10,7 +10,7 @@ defmodule Naive.Schema.Settings do
     field(:buy_down_interval, :decimal)
     field(:profit_interval, :decimal)
     field(:rebuy_interval, :decimal)
-    field(:status, Ecto.Enum, values: [:on, :off])
+    field(:status, Ecto.Enum, values: [:on, :off, :shutdown])
 
     timestamps()
   end
