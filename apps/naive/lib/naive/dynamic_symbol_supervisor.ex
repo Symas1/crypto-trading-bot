@@ -3,9 +3,6 @@ defmodule Naive.DynamicSymbolSupervisor do
 
   require Logger
 
-  import Ecto.Query, only: [from: 2]
-
-  alias Naive.DynamicSymbolSupervisor
   alias Naive.Repo
   alias Naive.Schema.Settings
 
