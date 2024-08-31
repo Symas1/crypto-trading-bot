@@ -5,6 +5,7 @@ defmodule Naive.DynamicSymbolSupervisor do
 
   import Ecto.Query, only: [from: 2]
 
+  alias Naive.DynamicSymbolSupervisor
   alias Naive.Repo
   alias Naive.Schema.Settings
 
@@ -30,6 +31,21 @@ defmodule Naive.DynamicSymbolSupervisor do
         Logger.warning("Trading on #{symbol} already started")
         {:ok, _settings} = update_trading_status(symbol, :on)
         {:ok, pid}
+    end
+  end
+
+  def stop_trading(symbol) when is_binary(symbol) do
+    symbol = String.upcase(symbol)
+
+    case get_pid(symbol) do
+      nil ->
+        Logger.warning("Trading on #{symbol} already stopped")
+        {:ok, _settings} = update_trading_status(symbol, :off)
+
+      pid ->
+        Logger.info("Stopping trading on #{symbol}")
+        :ok = DynamicSupervisor.terminate_child(Naive.DynamicSymbolSupervisor, pid)
+        {:ok, _settings} = update_trading_status(symbol, :off)
     end
   end
 
