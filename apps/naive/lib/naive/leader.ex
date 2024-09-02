@@ -51,6 +51,13 @@ defmodule Naive.Leader do
     )
   end
 
+  def notify(:settings_updated, settings) do
+    GenServer.call(
+      :"#{__MODULE__}-#{settings.symbol}",
+      {:update_settings, settings}
+    )
+  end
+
   def handle_continue(:start_traders, %{symbol: symbol} = state) do
     settings = fetch_symbol_settings(symbol)
     trader_state = fresh_trader_state(settings)
@@ -105,6 +112,10 @@ defmodule Naive.Leader do
 
         {:reply, :ok, %{state | :traders => updated_traders}}
     end
+  end
+
+  def handle_call({:update_settings, new_settings}, _from, state) do
+    {:reply, :ok, %{state | settings: new_settings}}
   end
 
   def handle_info(
