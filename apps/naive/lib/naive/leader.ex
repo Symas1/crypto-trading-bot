@@ -106,8 +106,17 @@ defmodule Naive.Leader do
             Logger.info("All traders already started for #{symbol}")
             updated_traders
           else
-            Logger.info("Starting new trader for #{symbol}")
-            [start_new_trader(fresh_trader_state(settings)) | updated_traders]
+            if settings.status == :shutdown do
+              Logger.warning(
+                "The leader won't start a new trader on #{symbol} as " <>
+                  "symbol is in the `shutdown` state"
+              )
+
+              updated_traders
+            else
+              Logger.info("Starting new trader for #{symbol}")
+              [start_new_trader(fresh_trader_state(settings)) | updated_traders]
+            end
           end
 
         {:reply, :ok, %{state | :traders => updated_traders}}
