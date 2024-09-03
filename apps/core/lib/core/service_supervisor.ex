@@ -1,6 +1,4 @@
 defmodule Core.ServiceSupervisor do
-  use DynamicSupervisor
-
   require Logger
 
   import Ecto.Query, only: [from: 2]
