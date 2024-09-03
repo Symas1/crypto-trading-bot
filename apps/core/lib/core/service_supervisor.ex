@@ -11,8 +11,6 @@ defmodule Core.ServiceSupervisor do
   end
 
   def start_worker(symbol) when is_binary(symbol) do
-    symbol = String.upcase(symbol)
-
     case get_pid(symbol) do
       nil ->
         Logger.info("Starting trading on #{symbol}")
@@ -32,8 +30,6 @@ defmodule Core.ServiceSupervisor do
   end
 
   def stop_worker(symbol) when is_binary(symbol) do
-    symbol = String.upcase(symbol)
-
     case get_pid(symbol) do
       nil ->
         Logger.warning("Trading on #{symbol} already stopped")
