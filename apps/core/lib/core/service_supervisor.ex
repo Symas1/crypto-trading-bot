@@ -48,11 +48,11 @@ defmodule Core.ServiceSupervisor do
     end
   end
 
-  defp get_pid(symbol) do
+  def get_pid(symbol) do
     Process.whereis(:"Elixir.Naive.SymbolSupervisor-#{symbol}")
   end
 
-  defp update_status(symbol, status) when is_binary(symbol) and is_atom(status) do
+  def update_status(symbol, status) when is_binary(symbol) and is_atom(status) do
     Repo.get_by(Settings, symbol: symbol)
     |> Ecto.Changeset.change(%{status: status})
     |> Repo.update()
