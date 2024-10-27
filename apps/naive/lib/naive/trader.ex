@@ -88,7 +88,7 @@ defmodule Naive.Trader do
           sell_order: %Binance.OrderResponse{}
         } = state
       ) do
-    {:noply, state}
+    {:noreply, state}
   end
 
   def handle_info(
