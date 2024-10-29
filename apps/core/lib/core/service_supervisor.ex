@@ -3,58 +3,56 @@ defmodule Core.ServiceSupervisor do
 
   import Ecto.Query, only: [from: 2]
 
-  alias Naive.Repo
-  alias Naive.Schema.Settings
-
-  def autostart_workers() do
-    fetch_symbols_to_start() |> Enum.map(&start_worker/1)
+  def autostart_workers(repo, schema, module, worker_module) do
+    fetch_symbols_to_start(repo, schema)
+    |> Enum.map(&start_worker(&1, repo, schema, module, worker_module))
   end
 
-  def start_worker(symbol) when is_binary(symbol) do
-    case get_pid(symbol) do
+  def start_worker(symbol, repo, schema, module, worker_module) when is_binary(symbol) do
+    case get_pid(worker_module, symbol) do
       nil ->
-        Logger.info("Starting trading on #{symbol}")
-        {:ok, _settings} = update_status(symbol, :on)
+        Logger.info("Starting #{worker_module} worker for #{symbol}")
+        {:ok, _settings} = update_status(symbol, :on, repo, schema)
 
         {:ok, _pid} =
           DynamicSupervisor.start_child(
-            Naive.DynamicSymbolSupervisor,
-            {Naive.SymbolSupervisor, symbol}
+            module,
+            {worker_module, symbol}
           )
 
       pid ->
-        Logger.warning("Trading on #{symbol} already started")
-        {:ok, _settings} = update_status(symbol, :on)
+        Logger.warning("#{worker_module} worker for #{symbol} already started")
+        {:ok, _settings} = update_status(symbol, :on, repo, schema)
         {:ok, pid}
     end
   end
 
-  def stop_worker(symbol) when is_binary(symbol) do
-    case get_pid(symbol) do
+  def stop_worker(symbol, repo, schema, module, worker_module) when is_binary(symbol) do
+    case get_pid(worker_module, symbol) do
       nil ->
-        Logger.warning("Trading on #{symbol} already stopped")
-        {:ok, _settings} = update_status(symbol, :off)
+        Logger.warning("#{worker_module} worker for #{symbol} already stopped")
+        {:ok, _settings} = update_status(symbol, :off, repo, schema)
 
       pid ->
-        Logger.info("Stopping trading on #{symbol}")
-        :ok = DynamicSupervisor.terminate_child(Naive.DynamicSymbolSupervisor, pid)
-        {:ok, _settings} = update_status(symbol, :off)
+        Logger.info("Stopping #{worker_module} worker for #{symbol}")
+        :ok = DynamicSupervisor.terminate_child(module, pid)
+        {:ok, _settings} = update_status(symbol, :off, repo, schema)
     end
   end
 
-  def get_pid(symbol) do
-    Process.whereis(:"Elixir.Naive.SymbolSupervisor-#{symbol}")
+  def get_pid(worker_module, symbol) do
+    Process.whereis(:"#{worker_module}-#{symbol}")
   end
 
-  def update_status(symbol, status) when is_binary(symbol) and is_atom(status) do
-    Repo.get_by(Settings, symbol: symbol)
+  def update_status(symbol, status, repo, schema) when is_binary(symbol) and is_atom(status) do
+    repo.get_by(schema, symbol: symbol)
     |> Ecto.Changeset.change(%{status: status})
-    |> Repo.update()
+    |> repo.update()
   end
 
-  defp fetch_symbols_to_start do
-    Repo.all(
-      from(s in Settings,
+  defp fetch_symbols_to_start(repo, schema) do
+    repo.all(
+      from(s in schema,
         where: s.status == :on,
         select: s.symbol
       )
