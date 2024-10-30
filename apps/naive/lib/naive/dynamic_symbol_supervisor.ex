@@ -18,18 +18,18 @@ defmodule Naive.DynamicSymbolSupervisor do
   def shutdown_worker(symbol) when is_binary(symbol) do
     symbol = String.upcase(symbol)
 
-    case Core.ServiceSupervisor.get_pid(symbol) do
+    case get_pid(symbol) do
       nil ->
         Logger.warning("#{Naive.SymbolSupervisor} worker for #{symbol} already stopped")
 
         {:ok, _settings} =
-          Core.ServiceSupervisor.update_status(symbol, :off)
+          update_status(symbol, :off)
 
       _pid ->
         Logger.info("Shutting down #{Naive.SymbolSupervisor} worker for #{symbol}")
 
         {:ok, settings} =
-          Core.ServiceSupervisor.update_status(symbol, :shutdown)
+          update_status(symbol, :shutdown)
 
         Naive.Leader.notify(:settings_updated, settings)
         {:ok, settings}
