@@ -6,10 +6,10 @@ defmodule Streamer do
   alias Streamer.DynamicStreamerSupervisor
 
   def start_streaming(symbol) do
-    symbol |> String.upcase() |> DynamicStreamerSupervisor.start_streaming()
+    symbol |> String.upcase() |> DynamicStreamerSupervisor.start_worker()
   end
 
   def stop_streaming(symbol) do
-    symbol |> String.upcase() |> DynamicStreamerSupervisor.stop_streaming()
+    symbol |> String.upcase() |> DynamicStreamerSupervisor.stop_worker()
   end
 end
