@@ -8,6 +8,7 @@ defmodule DataWarehouse.Application do
   @impl true
   def start(_type, _args) do
     children = [
+      {DataWarehouse.Repo, []}
       # Starts a worker by calling: DataWarehouse.Worker.start_link(arg)
       # {DataWarehouse.Worker, arg}
     ]

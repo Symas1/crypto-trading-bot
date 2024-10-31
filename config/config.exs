@@ -20,6 +20,9 @@ import Config
 config :logger,
   level: :info
 
+config :data_warehouse,
+  ecto_repos: [DataWarehouse.Repo]
+
 config :naive,
   ecto_repos: [Naive.Repo],
   binance_client: BinanceMock,
@@ -36,6 +39,7 @@ config :naive,
 config :streamer,
   ecto_repos: [Streamer.Repo]
 
+config :data_warehouse, DataWarehouse.Repo, database: "warehouse.db"
 config :naive, Naive.Repo, database: "naive.db"
 config :streamer, Streamer.Repo, database: "streamer.db"
 
