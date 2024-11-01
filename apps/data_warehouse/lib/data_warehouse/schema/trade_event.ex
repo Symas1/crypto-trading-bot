@@ -17,5 +17,4 @@ defmodule DataWarehouse.Schema.TradeEvent do
 
     timestamps()
   end
-
 end
