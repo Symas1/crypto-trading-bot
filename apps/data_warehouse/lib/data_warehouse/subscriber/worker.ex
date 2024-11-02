@@ -21,16 +21,31 @@ defmodule DataWarehouse.Subscriber.Worker do
 
     Phoenix.PubSub.subscribe(Streamer.PubSub, topic)
 
-    {
-      :ok,
-      %State{topic: topic}
-    }
+    {:ok, %State{topic: topic}}
   end
 
   def handle_info(%Streamer.Binance.TradeEvent{} = trade_event, state) do
     opts = trade_event |> Map.from_struct()
 
     struct!(DataWarehouse.Schema.TradeEvent, opts) |> DataWarehouse.Repo.insert()
+
+    {:noreply, state}
+  end
+
+  def handle_info(%Binance.Order{} = order, state) do
+    data = order |> Map.from_struct()
+
+    struct(DataWarehouse.Schema.Order, data)
+    |> Map.merge(%{
+      original_quantity: order.orig_qty,
+      executed_quantity: order.executed_qty,
+      cummulative_quote_quantity: order.cummulative_quote_qty,
+      iceberg_quantity: order.iceberg_qty
+    })
+    |> DataWarehouse.Repo.insert(
+      on_conflict: :replace_all,
+      conflict_target: :order_id
+    )
 
     {:noreply, state}
   end
