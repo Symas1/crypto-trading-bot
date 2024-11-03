@@ -73,6 +73,8 @@ defmodule Naive.Trader do
     {:ok, %Binance.OrderResponse{} = order} =
       @binance_client.order_limit_buy(symbol, quantity, price, "GTC")
 
+    :ok = broadcast_order(order)
+
     new_state = %{state | buy_order: order}
     Naive.Leader.notify(:trader_state_updated, new_state)
     {:noreply, new_state}
@@ -119,6 +121,8 @@ defmodule Naive.Trader do
     {:ok, %Binance.Order{} = current_buy_order} =
       @binance_client.get_order(symbol, timestamp, order_id)
 
+    :ok = broadcast_order(current_buy_order)
+
     buy_order = %{buy_order | status: current_buy_order.status}
 
     {:ok, new_state} =
@@ -132,6 +136,8 @@ defmodule Naive.Trader do
 
         {:ok, %Binance.OrderResponse{} = order} =
           @binance_client.order_limit_sell(symbol, quantity, sell_price, "GTC")
+
+        :ok = broadcast_order(order)
 
         {:ok, %{state | buy_order: buy_order, sell_order: order}}
       else
@@ -160,6 +166,8 @@ defmodule Naive.Trader do
       ) do
     {:ok, %Binance.Order{} = current_sell_order} =
       @binance_client.get_order(symbol, timestamp, order_id)
+
+    :ok = broadcast_order(current_sell_order)
 
     sell_order = %{sell_order | status: current_sell_order.status}
 
@@ -258,5 +266,25 @@ defmodule Naive.Trader do
       )
 
     D.lt?(current_price, rebuy_price)
+  end
+
+  defp broadcast_order(%Binance.OrderResponse{} = response) do
+    response |> to_order() |> broadcast_order()
+  end
+
+  defp broadcast_order(%Binance.Order{} = order) do
+    Phoenix.PubSub.broadcast(Streamer.PubSub, "ORDERS:#{order.symbol}", order)
+  end
+
+  defp to_order(%Binance.OrderResponse{} = response) do
+    raw = response |> Map.from_struct()
+
+    struct(Binance.Order, raw)
+    |> Map.merge(%{
+      cummulative_quote_qty: "0.00000000",
+      stop_price: "0.00000000",
+      iceberg_qty: "0.00000000",
+      is_working: true
+    })
   end
 end
