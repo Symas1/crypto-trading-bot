@@ -49,9 +49,7 @@ defmodule Naive.Trader do
     {:ok, state}
   end
 
-  @doc """
-  Upon trader start receives first trade event and places buy order on that price.
-  """
+  # Upon trader start receives first trade event and places buy order on that price.
   def handle_info(
         %TradeEvent{price: price},
         %State{
@@ -80,9 +78,7 @@ defmodule Naive.Trader do
     {:noreply, new_state}
   end
 
-  @doc """
-  Skips `buy` trade events for our `order_id`, if buy_order filled and sell_order placed.
-  """
+  # Skips `buy` trade events for our `order_id`, if buy_order filled and sell_order placed.
   def handle_info(
         %TradeEvent{buyer_order_id: order_id},
         %State{
@@ -99,9 +95,7 @@ defmodule Naive.Trader do
     {:noreply, state}
   end
 
-  @doc """
-  Called for unfilled buys. If buy filled - places sell. If buy partially filled, saves progress.
-  """
+  # Called for unfilled buys. If buy filled - places sell. If buy partially filled, saves progress.
   def handle_info(
         %TradeEvent{buyer_order_id: order_id},
         %State{
@@ -149,9 +143,7 @@ defmodule Naive.Trader do
     {:noreply, new_state}
   end
 
-  @doc """
-  Called for our sell trade events. If sell filled - exists; otherwise saves progress.
-  """
+  # Called for our sell trade events. If sell filled - exists; otherwise saves progress.
   def handle_info(
         %TradeEvent{seller_order_id: order_id},
         %State{
@@ -183,9 +175,7 @@ defmodule Naive.Trader do
     end
   end
 
-  @doc """
-  Receives trade event and decides, whether price is low enough to trigger rebuy.
-  """
+  # Receives trade event and decides, whether price is low enough to trigger rebuy.
   def handle_info(
         %TradeEvent{price: current_price},
         %State{
@@ -206,9 +196,7 @@ defmodule Naive.Trader do
     end
   end
 
-  @doc """
-  Receives any trade event.
-  """
+  # Receives any trade event.
   def handle_info(%TradeEvent{}, state) do
     {:noreply, state}
   end
