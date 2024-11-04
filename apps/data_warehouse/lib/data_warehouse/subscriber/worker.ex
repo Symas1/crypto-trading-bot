@@ -12,7 +12,7 @@ defmodule DataWarehouse.Subscriber.Worker do
     GenServer.start_link(
       __MODULE__,
       topic,
-      name: :"#{__MODULE__}-#{topic}"
+      name: {:via, Registry, {:subscriber_workers, topic}}
     )
   end
 
