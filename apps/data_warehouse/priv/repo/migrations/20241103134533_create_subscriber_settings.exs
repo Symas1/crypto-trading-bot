@@ -5,7 +5,7 @@ defmodule DataWarehouse.Repo.Migrations.CreateSubscriberSettings do
     create table(:subscriber_settings, primary_key: false) do
       add(:id, :uuid, primary_key: true)
       add(:topic, :text, null: false)
-      add(:status, :string, default: "off", null: false)
+      add(:status, :text, default: "off", null: false)
 
       timestamps()
     end
