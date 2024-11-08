@@ -8,14 +8,11 @@ defmodule DataWarehouse.Application do
   @impl true
   def start(_type, _args) do
     children = [
-      {DataWarehouse.Repo, []}
-      # Starts a worker by calling: DataWarehouse.Worker.start_link(arg)
-      # {DataWarehouse.Worker, arg}
+      {DataWarehouse.Repo, []},
+      {DataWarehouse.SubscriberSupervisor, []}
     ]
 
-    # See https://hexdocs.pm/elixir/Supervisor.html
-    # for other strategies and supported options
-    opts = [strategy: :one_for_one, name: DataWarehouse.Supervisor]
+    opts = [strategy: :one_for_one, name: __MODULE__]
     Supervisor.start_link(children, opts)
   end
 end
