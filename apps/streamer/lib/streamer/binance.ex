@@ -3,6 +3,7 @@ defmodule Streamer.Binance do
 
   require Logger
 
+  @registry :streamer_workers
   @stream_endpoint "wss://stream.binance.com:9443/ws/"
 
   def start_link(symbol) do
@@ -15,7 +16,7 @@ defmodule Streamer.Binance do
       "#{@stream_endpoint}#{String.downcase(symbol)}@trade",
       __MODULE__,
       nil,
-      name: :"#{__MODULE__}-#{String.upcase(symbol)}"
+      name: {:via, Registry, {@registry, symbol}}
     )
   end
 
