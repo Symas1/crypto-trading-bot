@@ -31,8 +31,7 @@ defmodule Naive.MixProject do
       {:ecto_sqlite3, "~> 0.17"},
       {:phoenix_pubsub, "~> 2.0"},
       {:streamer, in_umbrella: true},
-      {:binance_mock, in_umbrella: true},
-      {:core, in_umbrella: true}
+      {:binance_mock, in_umbrella: true}
       # {:dep_from_git, git: "https://github.com/elixir-lang/my_dep.git", tag: "0.1.0"},
     ]
   end

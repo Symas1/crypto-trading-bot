@@ -3,11 +3,13 @@ defmodule Naive.SymbolSupervisor do
 
   require Logger
 
+  @registry :symbol_supervisors
+
   def start_link(symbol) do
     Supervisor.start_link(
       __MODULE__,
       symbol,
-      name: :"#{__MODULE__}-#{symbol}"
+      name: {:via, Registry, {@registry, symbol}}
     )
   end
 

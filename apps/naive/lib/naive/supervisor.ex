@@ -1,6 +1,8 @@
 defmodule Naive.Supervisor do
   use Supervisor
 
+  @registry :symbol_supervisors
+
   def start_link(init_arg) do
     Supervisor.start_link(__MODULE__, init_arg, name: __MODULE__)
   end
@@ -8,6 +10,7 @@ defmodule Naive.Supervisor do
   @impl true
   def init(_init_arg) do
     children = [
+      {Registry, keys: :unique, name: @registry},
       {Naive.DynamicSymbolSupervisor, []},
       {
         Task,
