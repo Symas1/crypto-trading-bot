@@ -9,6 +9,10 @@ defmodule DataWarehouse do
     to_topic(stream, symbol) |> DynamicSupervisor.stop_worker()
   end
 
+  def publish_data(settings) do
+    DataWarehouse.Publisher.start_link(settings)
+  end
+
   defp to_topic(stream, symbol) do
     [stream, symbol]
     |> Enum.map(&String.upcase/1)
