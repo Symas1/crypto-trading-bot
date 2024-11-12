@@ -1,5 +1,4 @@
 defmodule DataWarehouse.Publisher do
-  alias ElixirLS.LanguageServer.Plugins.Phoenix
   require Logger
   use Task
 
