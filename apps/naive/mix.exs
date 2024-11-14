@@ -32,7 +32,7 @@ defmodule Naive.MixProject do
       {:phoenix_pubsub, "~> 2.0"},
       {:streamer, in_umbrella: true},
       {:binance_mock, in_umbrella: true},
-      {:data_warehouse, in_umbrella: true, only: :test},
+      {:data_warehouse, in_umbrella: true, only: :test}
       # {:dep_from_git, git: "https://github.com/elixir-lang/my_dep.git", tag: "0.1.0"},
     ]
   end
