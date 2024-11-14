@@ -47,3 +47,5 @@ config :streamer, Streamer.Repo, database: "streamer.db"
 if File.exists?("config/secrets.exs") do
   import_config("secrets.exs")
 end
+
+import_config "#{config_env()}.exs"
