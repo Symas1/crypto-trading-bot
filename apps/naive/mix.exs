@@ -11,7 +11,8 @@ defmodule Naive.MixProject do
       lockfile: "../../mix.lock",
       elixir: "~> 1.17",
       start_permanent: Mix.env() == :prod,
-      deps: deps()
+      deps: deps(),
+      aliases: aliases()
     ]
   end
 
@@ -34,6 +35,13 @@ defmodule Naive.MixProject do
       {:binance_mock, in_umbrella: true},
       {:data_warehouse, in_umbrella: true, only: :test}
       # {:dep_from_git, git: "https://github.com/elixir-lang/my_dep.git", tag: "0.1.0"},
+    ]
+  end
+
+  defp aliases do
+    [
+      # TODO: fix path
+      seed: ["run apps/naive/priv/seed_settings.exs"]
     ]
   end
 end
