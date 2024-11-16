@@ -37,6 +37,7 @@ config :naive,
   }
 
 config :streamer,
+  binance_client: BinanceMock,
   ecto_repos: [Streamer.Repo]
 
 config :data_warehouse, DataWarehouse.Repo, database: "warehouse.db"
@@ -49,3 +50,6 @@ if File.exists?("config/secrets.exs") do
 end
 
 import_config "#{config_env()}.exs"
+
+config :binance_mock,
+  use_cached_exchange_info: false
