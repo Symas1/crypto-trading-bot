@@ -2,7 +2,7 @@ defmodule BinanceMock do
   use GenServer
 
   alias Decimal, as: D
-  alias Streamer.Binance.TradeEvent
+  alias Core.TradeEvent
 
   require Logger
 
@@ -128,7 +128,7 @@ defmodule BinanceMock do
         Logger.debug("BinanceMock subscribing to #{stream_name}")
 
         Phoenix.PubSub.subscribe(
-          Streamer.PubSub,
+          Core.PubSub,
           stream_name
         )
 
@@ -225,7 +225,7 @@ defmodule BinanceMock do
   end
 
   defp broadcast_trade_event(%TradeEvent{} = trade_event) do
-    Phoenix.PubSub.broadcast(Streamer.PubSub, "TRADE_EVENTS:#{trade_event.symbol}", trade_event)
+    Phoenix.PubSub.broadcast(Core.PubSub, "TRADE_EVENTS:#{trade_event.symbol}", trade_event)
   end
 
   def get_cached_exchange_info do
