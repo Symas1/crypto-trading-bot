@@ -27,7 +27,8 @@ defmodule ElBot.MixProject do
         "ecto.drop",
         "ecto.create",
         "ecto.migrate",
-        "do --app naive --app streamer cmd --cd ../../ mix seed"
+        "run apps/streamer/priv/seed_settings.exs",
+        "run apps/naive/priv/seed_settings.exs"
       ],
       "test.integration": [
         "setup",
