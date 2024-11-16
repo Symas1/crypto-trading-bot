@@ -1,7 +1,7 @@
 defmodule Naive.Trader do
   use GenServer, restart: :temporary
 
-  alias Streamer.Binance.TradeEvent
+  alias Core.TradeEvent
   alias Decimal, as: D
 
   require Logger
@@ -44,7 +44,7 @@ defmodule Naive.Trader do
 
     Logger.info("[#{id}] Initializing new trader for #{symbol}")
 
-    Phoenix.PubSub.subscribe(Streamer.PubSub, "TRADE_EVENTS:#{symbol}")
+    Phoenix.PubSub.subscribe(Core.PubSub, "TRADE_EVENTS:#{symbol}")
 
     {:ok, state}
   end
@@ -261,7 +261,7 @@ defmodule Naive.Trader do
   end
 
   defp broadcast_order(%Binance.Order{} = order) do
-    Phoenix.PubSub.broadcast(Streamer.PubSub, "ORDERS:#{order.symbol}", order)
+    Phoenix.PubSub.broadcast(Core.PubSub, "ORDERS:#{order.symbol}", order)
   end
 
   defp to_order(%Binance.OrderResponse{} = response) do
