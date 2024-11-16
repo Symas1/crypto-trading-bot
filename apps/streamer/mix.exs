@@ -27,6 +27,7 @@ defmodule Streamer.MixProject do
   # Run "mix help deps" to learn about dependencies.
   defp deps do
     [
+      {:core, in_umbrella: true},
       {:binance_mock, in_umbrella: true},
       {:ecto_sqlite3, "~> 0.17"},
       {:websockex, "~> 0.4.3"},
