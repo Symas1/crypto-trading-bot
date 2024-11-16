@@ -5,7 +5,7 @@ alias Naive.Schema.Settings
 
 binance_client = Application.compile_env(:naive, :binance_client)
 
-Logger.info("Fetching exchange info from Binance to create trading settings")
+Logger.info("[naive] Fetching exchange info from Binance")
 
 {:ok, %{symbols: symbols}} = binance_client.get_exchange_info()
 
@@ -31,10 +31,10 @@ base_settings = %{
   updated_at: timestamp
 }
 
-Logger.info("Inserting default settings for symbols")
+Logger.info("[naive] Inserting default settings for symbols")
 
 maps = symbols |> Enum.map(&(%{base_settings | symbol: &1["symbol"]}))
 
 {count, nil} = Repo.insert_all(Settings, maps)
 
-Logger.info("Inserted settings for #{count} symbols")
+Logger.info("[naive] Inserted settings for #{count} symbols")
