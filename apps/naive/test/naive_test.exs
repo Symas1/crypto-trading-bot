@@ -9,7 +9,6 @@ defmodule NaiveTest do
   import Ecto.Query, only: [from: 2]
 
   @tag integration: true
-
   test "Naive trader full trade(buy + sell) test" do
     symbol = "XRPUSDT"
 
