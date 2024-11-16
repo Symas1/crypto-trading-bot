@@ -94,8 +94,12 @@ defmodule BinanceMock do
 
   def get_exchange_info do
     case Application.get_env(:binance_mock, :use_cached_exchange_info) do
-      true -> get_cached_exchange_info()
-      _ -> Binance.get_exchange_info()
+      true ->
+        Logger.info("Loading cached Binance exchange info")
+        get_cached_exchange_info()
+
+      _ ->
+        Binance.get_exchange_info()
     end
   end
 
@@ -232,8 +236,8 @@ defmodule BinanceMock do
     {:ok, data} =
       File.cwd!()
       |> Path.split()
-      |> Enum.drop(-1)
       |> Kernel.++([
+        "apps",
         "binance_mock",
         "test",
         "assets",
@@ -242,6 +246,6 @@ defmodule BinanceMock do
       |> Path.join()
       |> File.read()
 
-    {:ok, {Jason.decode!(data) |> Binance.ExchangeInfo.new()}}
+    {:ok, Jason.decode!(data) |> Binance.ExchangeInfo.new()}
   end
 end
