@@ -32,7 +32,7 @@ defmodule ElBot.MixProject do
       ],
       "test.integration": [
         "setup",
-        "test --only integration"
+        "do --app naive test --only integration"
       ]
     ]
   end
