@@ -234,7 +234,7 @@ defmodule BinanceMock do
 
   def get_cached_exchange_info do
     {:ok, data} =
-      File.cwd!()
+      Application.get_env(:binance_mock, :root)
       |> Path.split()
       |> Kernel.++([
         "apps",
