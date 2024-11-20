@@ -4,11 +4,10 @@ defmodule Naive.Trader do
   alias Core.TradeEvent
   alias Decimal, as: D
 
-  require Logger
-
   @binance_client Application.compile_env(:naive, :binance_client)
   @leader Application.compile_env(:naive, :leader)
   @pubsub_client Application.compile_env(:core, :pubsub_client)
+  @logger Application.compile_env(:core, :logger)
 
   defmodule State do
     @enforce_keys [
@@ -44,7 +43,7 @@ defmodule Naive.Trader do
   def init(%State{id: id, symbol: symbol} = state) do
     symbol = String.upcase(symbol)
 
-    Logger.info("[#{id}] Initializing new trader for #{symbol}")
+    @logger.info("[#{id}] Initializing new trader for #{symbol}")
 
     @pubsub_client.subscribe(Core.PubSub, "TRADE_EVENTS:#{symbol}")
 
@@ -68,7 +67,7 @@ defmodule Naive.Trader do
 
     quantity = calculate_quantity(budget, price, step_size)
 
-    Logger.info("[#{id}] Placing `buy` order for #{symbol} @ #{price}, quantity: #{quantity}")
+    @logger.info("[#{id}] Placing `buy` order for #{symbol} @ #{price}, quantity: #{quantity}")
 
     {:ok, %Binance.OrderResponse{} = order} =
       @binance_client.order_limit_buy(symbol, quantity, price, "GTC")
@@ -125,7 +124,7 @@ defmodule Naive.Trader do
       if buy_order.status == "FILLED" do
         sell_price = calculate_sell_price(buy_price, profit_interval, tick_size)
 
-        Logger.info(
+        @logger.info(
           "[#{id}] Buy order filled, placing SELL order for " <>
             "#{symbol} @ #{sell_price}), quantity: #{quantity}"
         )
@@ -137,7 +136,7 @@ defmodule Naive.Trader do
 
         {:ok, %{state | buy_order: buy_order, sell_order: order}}
       else
-        Logger.info("[#{id}] BUY order partially filled")
+        @logger.info("[#{id}] BUY order partially filled")
         {:ok, %{state | buy_order: buy_order}}
       end
 
@@ -169,10 +168,10 @@ defmodule Naive.Trader do
     @leader.notify(:trader_state_updated, new_state)
 
     if sell_order.status == "FILLED" do
-      Logger.info("[#{id}] Trade finished, trader will now exit")
+      @logger.info("[#{id}] Trade finished, trader will now exit")
       {:stop, :normal, new_state}
     else
-      Logger.info("[#{id}] SELL order partially filled")
+      @logger.info("[#{id}] SELL order partially filled")
       {:ok, new_state}
     end
   end
@@ -189,7 +188,7 @@ defmodule Naive.Trader do
         } = state
       ) do
     if trigger_rebuy?(buy_price, current_price, rebuy_interval) do
-      Logger.info("[#{id}] Rebuy triggered for #{symbol} trader")
+      @logger.info("[#{id}] Rebuy triggered for #{symbol} trader")
       new_state = %{state | rebuy_notified: true}
       @leader.notify(:rebuy_triggered, new_state)
       {:noreply, new_state}

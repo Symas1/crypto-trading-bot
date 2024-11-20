@@ -7,4 +7,10 @@ defmodule Core.Test do
     @callback subscribe(t, topic) :: :ok | {:error, term}
     @callback broadcast(t, topic, message) :: :ok | {:error, term}
   end
+
+  defmodule Logger do
+    @type message :: binary
+
+    @callback info(message) :: :ok
+  end
 end

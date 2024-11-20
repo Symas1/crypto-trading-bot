@@ -55,6 +55,7 @@ config :binance_mock,
   use_cached_exchange_info: false
 
 config :core,
-  pubsub_client: Phoenix.PubSub
+  pubsub_client: Phoenix.PubSub,
+  logger: Logger
 
 import_config "#{config_env()}.exs"

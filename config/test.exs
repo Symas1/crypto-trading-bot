@@ -5,4 +5,5 @@ config :naive,
   leader: Test.Naive.LeaderMock
 
 config :core,
-  pubsub_client: Test.PubSubMock
+  pubsub_client: Test.PubSubMock,
+  logger: Test.LoggerMock
