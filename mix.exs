@@ -8,7 +8,11 @@ defmodule ElBot.MixProject do
       start_permanent: Mix.env() == :prod,
       deps: deps(),
       aliases: aliases(),
-      consolidate_protocols: Mix.env() == :prod
+      consolidate_protocols: Mix.env() == :prod,
+      preferred_cli_env: [
+        "test.unit": :test,
+        "test.integration": :integration
+      ]
     ]
   end
 
@@ -33,6 +37,9 @@ defmodule ElBot.MixProject do
       "test.integration": [
         "setup",
         "do --app naive test --only integration"
+      ],
+      "test.unit": [
+        "do --app naive test --only unit --no-start"
       ]
     ]
   end
