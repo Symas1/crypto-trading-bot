@@ -54,4 +54,7 @@ config :binance_mock,
   root: File.cwd!(),
   use_cached_exchange_info: false
 
+config :core,
+  pubsub_client: Phoenix.PubSub
+
 import_config "#{config_env()}.exs"

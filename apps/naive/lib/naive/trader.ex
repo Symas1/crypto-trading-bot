@@ -8,6 +8,7 @@ defmodule Naive.Trader do
 
   @binance_client Application.compile_env(:naive, :binance_client)
   @leader Application.compile_env(:naive, :leader)
+  @pubsub_client Application.compile_env(:core, :pubsub_client)
 
   defmodule State do
     @enforce_keys [
@@ -45,7 +46,7 @@ defmodule Naive.Trader do
 
     Logger.info("[#{id}] Initializing new trader for #{symbol}")
 
-    Phoenix.PubSub.subscribe(Core.PubSub, "TRADE_EVENTS:#{symbol}")
+    @pubsub_client.subscribe(Core.PubSub, "TRADE_EVENTS:#{symbol}")
 
     {:ok, state}
   end
@@ -262,7 +263,7 @@ defmodule Naive.Trader do
   end
 
   defp broadcast_order(%Binance.Order{} = order) do
-    Phoenix.PubSub.broadcast(Core.PubSub, "ORDERS:#{order.symbol}", order)
+    @pubsub_client.broadcast(Core.PubSub, "ORDERS:#{order.symbol}", order)
   end
 
   defp to_order(%Binance.OrderResponse{} = response) do
