@@ -26,6 +26,7 @@ config :data_warehouse,
 config :naive,
   ecto_repos: [Naive.Repo],
   binance_client: BinanceMock,
+  leader: Naive.Leader,
   trading: %{
     defaults: %{
       chunks: 5,

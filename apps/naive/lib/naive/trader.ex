@@ -7,6 +7,7 @@ defmodule Naive.Trader do
   require Logger
 
   @binance_client Application.compile_env(:naive, :binance_client)
+  @leader Application.compile_env(:naive, :leader)
 
   defmodule State do
     @enforce_keys [
@@ -74,7 +75,7 @@ defmodule Naive.Trader do
     :ok = broadcast_order(order)
 
     new_state = %{state | buy_order: order}
-    Naive.Leader.notify(:trader_state_updated, new_state)
+    @leader.notify(:trader_state_updated, new_state)
     {:noreply, new_state}
   end
 
@@ -139,7 +140,7 @@ defmodule Naive.Trader do
         {:ok, %{state | buy_order: buy_order}}
       end
 
-    Naive.Leader.notify(:trader_state_updated, new_state)
+    @leader.notify(:trader_state_updated, new_state)
     {:noreply, new_state}
   end
 
@@ -164,7 +165,7 @@ defmodule Naive.Trader do
     sell_order = %{sell_order | status: current_sell_order.status}
 
     new_state = %{state | sell_order: sell_order}
-    Naive.Leader.notify(:trader_state_updated, new_state)
+    @leader.notify(:trader_state_updated, new_state)
 
     if sell_order.status == "FILLED" do
       Logger.info("[#{id}] Trade finished, trader will now exit")
@@ -189,7 +190,7 @@ defmodule Naive.Trader do
     if trigger_rebuy?(buy_price, current_price, rebuy_interval) do
       Logger.info("[#{id}] Rebuy triggered for #{symbol} trader")
       new_state = %{state | rebuy_notified: true}
-      Naive.Leader.notify(:rebuy_triggered, new_state)
+      @leader.notify(:rebuy_triggered, new_state)
       {:noreply, new_state}
     else
       {:noreply, state}

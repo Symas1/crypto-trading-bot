@@ -1,4 +1,5 @@
 import Config
 
 config :naive,
-  binance_client: Test.BinanceMock
+  binance_client: Test.BinanceMock,
+  leader: Test.Naive.LeaderMock
