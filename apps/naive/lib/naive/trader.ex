@@ -4,6 +4,8 @@ defmodule Naive.Trader do
   alias Core.TradeEvent
   alias Decimal, as: D
 
+  require Logger
+
   @binance_client Application.compile_env(:naive, :binance_client)
   @leader Application.compile_env(:naive, :leader)
   @pubsub_client Application.compile_env(:core, :pubsub_client)
@@ -157,7 +159,21 @@ defmodule Naive.Trader do
     {:noreply, new_state}
   end
 
-  # Called for our sell trade events. If sell filled - exists; otherwise saves progress.
+  # Exits for `FILLED` sell
+  def handle_info(
+        %TradeEvent{},
+        %State{
+          id: id,
+          sell_order: %Binance.OrderResponse{
+            status: "FILLED"
+          }
+        } = state
+      ) do
+    @logger.info("[#{id}] Trade finished, trader will now exit")
+    {:stop, :normal, state}
+  end
+
+  # Saves sell progress for unfilled sells
   def handle_info(
         %TradeEvent{seller_order_id: order_id},
         %State{
@@ -170,6 +186,8 @@ defmodule Naive.Trader do
             } = sell_order
         } = state
       ) do
+    @logger.info("[#{id}] SELL order partially filled")
+
     {:ok, %Binance.Order{} = current_sell_order} =
       @binance_client.get_order(symbol, timestamp, order_id)
 
@@ -179,14 +197,7 @@ defmodule Naive.Trader do
 
     new_state = %{state | sell_order: sell_order}
     @leader.notify(:trader_state_updated, new_state)
-
-    if sell_order.status == "FILLED" do
-      @logger.info("[#{id}] Trade finished, trader will now exit")
-      {:stop, :normal, new_state}
-    else
-      @logger.info("[#{id}] SELL order partially filled")
-      {:ok, new_state}
-    end
+    {:ok, new_state}
   end
 
   # Receives trade event and decides, whether price is low enough to trigger rebuy.
