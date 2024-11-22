@@ -10,8 +10,7 @@ defmodule ElBot.MixProject do
       aliases: aliases(),
       consolidate_protocols: Mix.env() == :prod,
       preferred_cli_env: [
-        "test.unit": :test,
-        "test.integration": :integration
+        "test.unit": :test
       ]
     ]
   end
