@@ -37,25 +37,28 @@ defmodule NaiveTest do
 
     # Step 4 - Broadcast events
     [
-      # buy order placed @ 0.4307
+      # buy order palced @ 0.4307
       generate_event(1, "0.43183010", "213.10000000"),
       generate_event(2, "0.43183020", "56.10000000"),
       generate_event(3, "0.43183030", "12.10000000"),
       # event at the expected buy price
       generate_event(4, "0.4307", "38.92000000"),
       # event below the expected buy price
-      # it should trigger fake fill event for placed buy order
-      # and place sell order @ 0.4319
+      # trigger fake fill event for placed buy order
       generate_event(5, "0.43065", "126.53000000"),
+      # palce sell order @ 0.4319
+      generate_event(6, "0.43065", "126.53000000"),
       # event below the expected sell price
-      generate_event(6, "0.43189", "26.18500000"),
+      generate_event(7, "0.43189", "26.18500000"),
       # event at exact the expected sell price
-      generate_event(7, "0.4319", "62.92640000"),
+      generate_event(8, "0.4319", "62.92640000"),
       # event above the expected sell price
       # it should trigger fake fill event for placed sell order
-      generate_event(8, "0.43205", "345.14235000"),
-      # this one should trigger buy order for a new trader process
-      generate_event(9, "0.43210", "3201.86480000")
+      generate_event(9, "0.43205", "345.14235000"),
+      # finish trader
+      generate_event(10, "0.43205", "345.14235000"),
+      # trigger buy order for a new trader process
+      generate_event(11, "0.43210", "3201.86480000")
     ]
     |> Enum.each(fn event ->
       Phoenix.PubSub.broadcast(
