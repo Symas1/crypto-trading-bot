@@ -226,6 +226,23 @@ defmodule Naive.Trader do
     {:noreply, state}
   end
 
+  defp calculate_buy_price(current_price, buy_down_interval, tick_size) do
+    # may be invalid price (not divisible by tick_size)
+    exact_buy_price =
+      D.sub(
+        current_price,
+        D.mult(current_price, buy_down_interval)
+      )
+
+    D.to_string(
+      D.mult(
+        D.div_int(exact_buy_price, tick_size),
+        tick_size
+      ),
+      :normal
+    )
+  end
+
   defp calculate_sell_price(buy_price, profit_interval, tick_size) do
     # TODO: remove hardcoded value
     fee = "1.001"
@@ -239,23 +256,6 @@ defmodule Naive.Trader do
     D.to_string(
       D.mult(
         D.div_int(gross_target_price, tick_size),
-        tick_size
-      ),
-      :normal
-    )
-  end
-
-  defp calculate_buy_price(current_price, buy_down_interval, tick_size) do
-    # may be invalid price (not divisible by tick_size)
-    exact_buy_price =
-      D.sub(
-        current_price,
-        D.mult(current_price, buy_down_interval)
-      )
-
-    D.to_string(
-      D.mult(
-        D.div_int(exact_buy_price, tick_size),
         tick_size
       ),
       :normal
