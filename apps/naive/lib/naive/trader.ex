@@ -197,7 +197,7 @@ defmodule Naive.Trader do
 
     new_state = %{state | sell_order: sell_order}
     @leader.notify(:trader_state_updated, new_state)
-    {:ok, new_state}
+    {:noreply, new_state}
   end
 
   # Receives trade event and decides, whether price is low enough to trigger rebuy.
