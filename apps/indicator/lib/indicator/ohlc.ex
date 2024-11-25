@@ -24,7 +24,7 @@ defmodule Indicator.Ohlc do
   defp maybe_broadcast(nil), do: :ok
 
   defp maybe_broadcast(%__MODULE__{} = ohlc) do
-    Logger.debug("Broadcasting OHLC: #{inspect(ohlc)}")
+    Logger.info("Broadcasting OHLC: #{inspect(ohlc)}")
 
     @pubsub_client.broadcast(
       Core.PubSub,
@@ -33,14 +33,24 @@ defmodule Indicator.Ohlc do
     )
   end
 
-  def process(%__MODULE__{} = ohlc, %TradeEvent{} = trade_event) do
-    {old_ohlc, new_ohlc} = merge_price(ohlc, trade_event.price, trade_event.trade_time)
-    maybe_broadcast(old_ohlc)
-    new_ohlc
+  def process([_ | _] = ohlcs, %TradeEvent{} = trade_event) do
+    {old_ohlcs, new_ohlcs} = merge_prices(ohlcs, trade_event.price, trade_event.trade_time)
+
+    old_ohlcs |> Enum.each(&maybe_broadcast/1)
+    new_ohlcs
   end
 
-  def process({symbol, duration}, %TradeEvent{} = trade_event) do
-    generate_ohlc(symbol, duration, trade_event.price, trade_event.trade_time)
+  def process(symbol, %TradeEvent{} = trade_event) do
+    generate_ohlcs(symbol, trade_event.price, trade_event.trade_time)
+  end
+
+  def merge_prices(ohlcs, price, trade_time) do
+    results = ohlcs |> Enum.map(&merge_price(&1, price, trade_time))
+
+    {
+      results |> Enum.map(&elem(&1, 0)) |> Enum.filter(& &1),
+      results |> Enum.map(&elem(&1, 1))
+    }
   end
 
   def merge_price(%__MODULE__{} = ohlc, price, trade_time) do
@@ -56,6 +66,11 @@ defmodule Indicator.Ohlc do
     trade_time = div(trade_time, 1000)
 
     start_time <= trade_time && trade_time < end_time
+  end
+
+  def generate_ohlcs(symbol, price, trade_time) do
+    [1, 5, 15, 60, 4 * 60, 24 * 60]
+    |> Enum.map(&generate_ohlc(symbol, &1, price, trade_time))
   end
 
   def generate_ohlc(symbol, duration, price, trade_time) do

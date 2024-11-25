@@ -12,7 +12,10 @@ defmodule Indicator do
       :world
 
   """
-  def hello do
-    :world
+  def start_ohlcs(symbol) do
+    DynamicSupervisor.start_child(
+      Indicator.DynamicSupervisor,
+      {Indicator.Ohlc.Worker, symbol}
+    )
   end
 end
