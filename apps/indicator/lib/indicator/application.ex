@@ -8,6 +8,7 @@ defmodule Indicator.Application do
   @impl true
   def start(_type, _args) do
     children = [
+      {DynamicSupervisor, strategy: :one_for_one, name: Indicator.DynamicSupervisor}
       # Starts a worker by calling: Indicator.Worker.start_link(arg)
       # {Indicator.Worker, arg}
     ]
