@@ -250,7 +250,7 @@ defmodule Naive.Strategy do
          %State{
            id: id,
            symbol: symbol
-         } = state
+         }
        ) do
     @logger.info("[#{id}] Trade finished for #{symbol} trader will now exit")
     :exit
