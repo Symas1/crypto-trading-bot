@@ -3,17 +3,23 @@ defmodule Naive do
   Documentation for `Naive`.
   """
 
-  alias Naive.DynamicSymbolSupervisor
+  alias Naive.DynamicTraderSupervisor
 
   def start_trading(symbol) do
-    symbol |> String.upcase() |> DynamicSymbolSupervisor.start_worker()
+    symbol |> String.upcase() |> DynamicTraderSupervisor.start_worker()
   end
 
   def stop_trading(symbol) do
-    symbol |> String.upcase() |> DynamicSymbolSupervisor.stop_worker()
+    symbol |> String.upcase() |> DynamicTraderSupervisor.stop_worker()
   end
 
   def shutdown_trading(symbol) do
-    symbol |> String.upcase() |> DynamicSymbolSupervisor.shutdown_worker()
+    symbol |> String.upcase() |> DynamicTraderSupervisor.shutdown_worker()
+  end
+
+  def get_positions(symbol) do
+    symbol
+    |> String.upcase()
+    |> Naive.Trader.get_positions()
   end
 end

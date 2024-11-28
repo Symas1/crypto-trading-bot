@@ -27,12 +27,6 @@ defmodule Naive.TraderTest do
 
     test_pid = self()
 
-    Test.Naive.LeaderMock
-    |> expect(:notify, fn :trader_state_updated, %Naive.Trader.State{} ->
-      send(test_pid, :ok)
-      :ok
-    end)
-
     Test.LoggerMock
     |> expect(:info, 2, fn _message -> :ok end)
 
@@ -45,7 +39,7 @@ defmodule Naive.TraderTest do
   end
 
   defp dummy_trader_state() do
-    %Naive.Trader.State{
+    %Naive.Strategy.Position{
       id: 100_000_000,
       symbol: "XRPUSDT",
       budget: "200",

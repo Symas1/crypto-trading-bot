@@ -2,7 +2,7 @@ import Config
 
 config :naive,
   binance_client: Test.BinanceMock,
-  leader: Test.Naive.LeaderMock
+  repo: Test.Naive.RepoMock
 
 config :core,
   pubsub_client: Test.PubSubMock,

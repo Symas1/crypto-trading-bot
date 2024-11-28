@@ -1,58 +1,77 @@
 defmodule Naive.Trader do
   use GenServer, restart: :temporary
 
+  alias Naive.Strategy
   alias Core.TradeEvent
 
   require Logger
 
   @pubsub_client Application.compile_env(:core, :pubsub_client)
   @logger Application.compile_env(:core, :logger)
+  @registry :naive_traders
 
   defmodule State do
-    @enforce_keys [
-      :id,
-      :symbol,
-      :buy_down_interval,
-      :profit_interval,
-      :rebuy_interval,
-      :rebuy_notified,
-      :tick_size,
-      :budget,
-      :step_size
-    ]
-    defstruct [
-      :id,
-      :symbol,
-      :buy_order,
-      :sell_order,
-      :buy_down_interval,
-      :profit_interval,
-      :rebuy_interval,
-      :rebuy_notified,
-      :tick_size,
-      :budget,
-      :step_size
-    ]
+    @enforce_keys [:settings, :positions]
+    defstruct [:settings, positions: []]
   end
 
-  def start_link(%State{} = state) do
-    GenServer.start_link(__MODULE__, state)
-  end
-
-  def init(%State{id: id, symbol: symbol} = state) do
+  def start_link(symbol) do
     symbol = String.upcase(symbol)
 
-    @logger.info("[#{id}] Initializing new trader for #{symbol}")
+    GenServer.start_link(__MODULE__, symbol, name: {:via, Registry, {@registry, symbol}})
+  end
+
+  def notify(:settings_updated, settings) do
+    call_trader(settings.symbol, {:update_settings, settings})
+  end
+
+  def get_positions(symbol) do
+    call_trader(symbol, {:get_positions, symbol})
+  end
+
+  def init(symbol) do
+    @logger.info("Initializing new trader for #{symbol}")
 
     @pubsub_client.subscribe(Core.PubSub, "TRADE_EVENTS:#{symbol}")
 
-    {:ok, state}
+    {:ok, nil, {:continue, {:start_position, symbol}}}
+  end
+
+  def handle_continue({:start_position, symbol}, _state) do
+    settings = Strategy.fetch_symbol_settings(symbol)
+    positions = [Strategy.generate_fresh_position(settings)]
+
+    {:noreply, %State{settings: settings, positions: positions}}
   end
 
   def handle_info(%TradeEvent{} = trade_event, %State{} = state) do
-    case Naive.Strategy.execute(trade_event, state) do
-      {:ok, new_state} -> {:noreply, new_state}
-      :exit -> {:stop, :normal, state}
+    case Naive.Strategy.execute(trade_event, state.positions, state.settings) do
+      {:ok, updated_positions} ->
+        {:noreply, %{state | positions: updated_positions}}
+
+      :exit ->
+        {:ok, _settings} = Strategy.update_status(trade_event.symbol, :off)
+        Logger.info("Trading for #{trade_event.symbol} stopped")
+        {:stop, :normal, state}
+    end
+  end
+
+  def handle_call({:update_settings, new_settings}, _from, state) do
+    {:reply, :ok, %{state | settings: new_settings}}
+  end
+
+  def handle_call({:get_positions, symbol}, _from, state) do
+    {:reply, state.positions, state}
+  end
+
+  defp call_trader(symbol, data) do
+    case Registry.lookup(@registry, symbol) do
+      [{pid, _}] ->
+        GenServer.call(pid, data)
+
+      _ ->
+        Logger.warning("Unable to locate trader process assigned to #{symbol}")
+        {:error, :unable_to_locate_trader}
     end
   end
 end
