@@ -25,8 +25,6 @@ defmodule Naive.TraderTest do
        |> BinanceMock.convert_order_to_order_response()}
     end)
 
-    test_pid = self()
-
     Test.LoggerMock
     |> expect(:info, 2, fn _message -> :ok end)
 
