@@ -60,7 +60,7 @@ defmodule Naive.Trader do
     {:reply, :ok, %{state | settings: new_settings}}
   end
 
-  def handle_call({:get_positions, symbol}, _from, state) do
+  def handle_call({:get_positions, _symbol}, _from, state) do
     {:reply, state.positions, state}
   end
 
