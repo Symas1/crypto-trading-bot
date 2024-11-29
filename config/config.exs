@@ -26,7 +26,7 @@ config :data_warehouse,
 config :naive,
   ecto_repos: [Naive.Repo],
   repo: Naive.Repo,
-  binance_client: BinanceMock,
+  exchange_client: BinanceMock,
   trading: %{
     defaults: %{
       chunks: 5,
@@ -38,7 +38,7 @@ config :naive,
   }
 
 config :streamer,
-  binance_client: BinanceMock,
+  exchange_client: BinanceMock,
   ecto_repos: [Streamer.Repo]
 
 config :data_warehouse, DataWarehouse.Repo, database: "warehouse.db"
