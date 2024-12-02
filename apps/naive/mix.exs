@@ -33,7 +33,7 @@ defmodule Naive.MixProject do
       {:core, in_umbrella: true},
       {:binance_mock, in_umbrella: true},
       {:data_warehouse, in_umbrella: true, only: :test},
-      {:mox, "~> 1.0", only: [:test, :integration]}
+      {:mimic, "~> 1.10", only: [:test, :integration]}
       # {:dep_from_git, git: "https://github.com/elixir-lang/my_dep.git", tag: "0.1.0"},
     ]
   end
