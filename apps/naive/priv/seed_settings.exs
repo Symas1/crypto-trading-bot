@@ -3,11 +3,11 @@ require Logger
 alias Naive.Repo
 alias Naive.Schema.Settings
 
-exchange_client = Application.compile_env(:naive, :exchange_client)
+binance_client = Application.compile_env(:naive, :binance_client)
 
 Logger.info("[naive] Fetching exchange info from Binance")
 
-{:ok, symbols} = exchange_client.fetch_symbols()
+{:ok, %{symbols: symbols}} = binance_client.get_exchange_info()
 
 %{
   chunks: chunks,
@@ -33,7 +33,7 @@ base_settings = %{
 
 Logger.info("[naive] Inserting default settings for symbols")
 
-maps = symbols |> Enum.map(&(%{base_settings | symbol: &1}))
+maps = symbols |> Enum.map(&(%{base_settings | symbol: &1["symbol"]}))
 
 {count, nil} = Repo.insert_all(Settings, maps)
 

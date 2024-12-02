@@ -1,8 +1,6 @@
 defmodule DataWarehouse.Subscriber.Worker do
   use GenServer
 
-  alias Core.Exchange
-
   require Logger
 
   defmodule State do
@@ -34,23 +32,21 @@ defmodule DataWarehouse.Subscriber.Worker do
     {:noreply, state}
   end
 
-  def handle_info(%Exchange.Order{} = order, state) do
-    data =
-      order
-      |> Map.from_struct()
-      |> Map.merge(%{side: atom_to_side(order.side), status: atom_to_status(order.status)})
+  def handle_info(%Binance.Order{} = order, state) do
+    data = order |> Map.from_struct()
 
     struct(DataWarehouse.Schema.Order, data)
+    |> Map.merge(%{
+      original_quantity: order.orig_qty,
+      executed_quantity: order.executed_qty,
+      cummulative_quote_quantity: order.cummulative_quote_qty,
+      iceberg_quantity: order.iceberg_qty
+    })
     |> DataWarehouse.Repo.insert(
       on_conflict: :replace_all,
-      conflict_target: :id
+      conflict_target: :order_id
     )
 
     {:noreply, state}
   end
-
-  defp atom_to_side(:buy), do: "BUY"
-  defp atom_to_side(:sell), do: "SELL"
-  defp atom_to_status(:new), do: "NEW"
-  defp atom_to_status(:filled), do: "FILLED"
 end

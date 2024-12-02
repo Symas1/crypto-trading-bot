@@ -1,7 +1,7 @@
 import Config
 
 config :naive,
-  exchange_client: Test.BinanceMock,
+  binance_client: Test.BinanceMock,
   repo: Test.Naive.RepoMock
 
 config :core,
