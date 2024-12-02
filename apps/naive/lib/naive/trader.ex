@@ -6,8 +6,6 @@ defmodule Naive.Trader do
 
   require Logger
 
-  @pubsub_client Application.compile_env(:core, :pubsub_client)
-  @logger Application.compile_env(:core, :logger)
   @registry :naive_traders
 
   defmodule State do
@@ -30,9 +28,9 @@ defmodule Naive.Trader do
   end
 
   def init(symbol) do
-    @logger.info("Initializing new trader for #{symbol}")
+    Logger.info("Initializing new trader for #{symbol}")
 
-    @pubsub_client.subscribe(Core.PubSub, "TRADE_EVENTS:#{symbol}")
+    Phoenix.PubSub.subscribe(Core.PubSub, "TRADE_EVENTS:#{symbol}")
 
     {:ok, nil, {:continue, {:start_position, symbol}}}
   end

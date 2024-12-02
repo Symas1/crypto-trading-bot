@@ -25,7 +25,6 @@ config :data_warehouse,
 
 config :naive,
   ecto_repos: [Naive.Repo],
-  repo: Naive.Repo,
   binance_client: BinanceMock,
   trading: %{
     defaults: %{
@@ -53,9 +52,5 @@ end
 config :binance_mock,
   root: File.cwd!(),
   use_cached_exchange_info: false
-
-config :core,
-  pubsub_client: Phoenix.PubSub,
-  logger: Logger
 
 import_config "#{config_env()}.exs"

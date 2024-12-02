@@ -3,8 +3,6 @@ defmodule Indicator.Ohlc do
 
   require Logger
 
-  @pubsub_client Application.compile_env(:core, :pubsub_client)
-
   @enforce_keys [
     :symbol,
     :start_time,
@@ -26,7 +24,7 @@ defmodule Indicator.Ohlc do
   defp maybe_broadcast(%__MODULE__{} = ohlc) do
     Logger.info("Broadcasting OHLC: #{inspect(ohlc)}")
 
-    @pubsub_client.broadcast(
+    Phoenix.PubSub.broadcast(
       Core.PubSub,
       "OHLC:#{ohlc.symbol}",
       ohlc
