@@ -173,9 +173,10 @@ defmodule Naive.Strategy do
           sell_order: %Binance.OrderResponse{status: "FILLED"}
         },
         _positions,
-        settings
-      ) do
-    if settings.status == :shutdown do
+        %{status: status}
+      )
+      when is_atom(status) do
+    if status == :shutdown do
       :exit
     else
       :finished
