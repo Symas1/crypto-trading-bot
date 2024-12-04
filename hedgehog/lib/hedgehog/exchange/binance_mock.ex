@@ -8,7 +8,11 @@ defmodule Hedgehog.Exchange.BinanceMock do
 
   require Logger
 
-  @use_cached_exchange_info Application.compile_env!(:hedgehog, [:exchanges, :binance_mock, :use_cached_exchange_info])
+  @use_cached_exchange_info Application.compile_env!(:hedgehog, [
+                              :exchanges,
+                              :binance_mock,
+                              :use_cached_exchange_info
+                            ])
 
   @type symbol :: binary
   @type quantity :: binary

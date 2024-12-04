@@ -11,11 +11,11 @@ defmodule Hedgehog.Application do
       HedgehogWeb.Telemetry,
       Hedgehog.Repo,
       {Ecto.Migrator,
-        repos: Application.fetch_env!(:hedgehog, :ecto_repos),
-        skip: skip_migrations?()},
+       repos: Application.fetch_env!(:hedgehog, :ecto_repos), skip: skip_migrations?()},
       {DNSCluster, query: Application.get_env(:hedgehog, :dns_cluster_query) || :ignore},
       {Phoenix.PubSub, name: Hedgehog.PubSub},
       Hedgehog.Exchange.BinanceMock,
+      Hedgehog.Streamer.Binance.Supervisor,
       # Start a worker by calling: Hedgehog.Worker.start_link(arg)
       # {Hedgehog.Worker, arg},
       # Start to serve requests, typically the last entry

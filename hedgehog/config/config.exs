@@ -8,6 +8,7 @@
 import Config
 
 config :hedgehog,
+  binance_client: Hedgehog.Exchange.BinanceMock,
   ecto_repos: [Hedgehog.Repo],
   generators: [timestamp_type: :utc_datetime],
   exchanges: [
