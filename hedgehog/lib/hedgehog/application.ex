@@ -16,6 +16,7 @@ defmodule Hedgehog.Application do
       {Phoenix.PubSub, name: Hedgehog.PubSub},
       Hedgehog.Exchange.BinanceMock,
       Hedgehog.Streamer.Binance.Supervisor,
+      Hedgehog.Strategy.Naive.Supervisor,
       # Start a worker by calling: Hedgehog.Worker.start_link(arg)
       # {Hedgehog.Worker, arg},
       # Start to serve requests, typically the last entry

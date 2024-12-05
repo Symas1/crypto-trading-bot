@@ -9,7 +9,10 @@ defmodule Hedgehog.MixProject do
       elixirc_paths: elixirc_paths(Mix.env()),
       start_permanent: Mix.env() == :prod,
       aliases: aliases(),
-      deps: deps()
+      deps: deps(),
+      preferred_cli_env: [
+        "test.unit": :test
+      ]
     ]
   end
 
@@ -44,7 +47,8 @@ defmodule Hedgehog.MixProject do
       {:bandit, "~> 1.5"},
       {:binance, "~> 1.0"},
       {:decimal, "~> 2.0"},
-      {:websockex, "~> 0.4.3"}
+      {:websockex, "~> 0.4.3"},
+      {:mimic, "~> 1.10", only: [:test, :integration]}
     ]
   end
 
@@ -59,7 +63,10 @@ defmodule Hedgehog.MixProject do
       setup: ["deps.get", "ecto.setup"],
       "ecto.setup": ["ecto.create", "ecto.migrate", "run priv/repo/seeds.exs"],
       "ecto.reset": ["ecto.drop", "ecto.setup"],
-      test: ["ecto.create --quiet", "ecto.migrate --quiet", "test"]
+      test: ["ecto.create --quiet", "ecto.migrate --quiet", "test"],
+      "test.unit": [
+        "test --only unit --no-start"
+      ]
     ]
   end
 end
