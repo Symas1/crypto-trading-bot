@@ -212,7 +212,7 @@ defmodule Hedgehog.Exchange.BinanceMock do
         Logger.info("BinanceMock subscribing to #{stream_name}")
 
         Phoenix.PubSub.subscribe(
-          Core.PubSub,
+          Hedgehog.PubSub,
           stream_name
         )
 
