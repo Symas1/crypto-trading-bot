@@ -15,6 +15,7 @@ defmodule Hedgehog.Application do
       {DNSCluster, query: Application.get_env(:hedgehog, :dns_cluster_query) || :ignore},
       {Phoenix.PubSub, name: Hedgehog.PubSub},
       Hedgehog.Exchange.BinanceMock,
+      Hedgehog.Data.Collector.CollectorSupervisor,
       Hedgehog.Streamer.Binance.Supervisor,
       Hedgehog.Strategy.Naive.Supervisor,
       # Start a worker by calling: Hedgehog.Worker.start_link(arg)
