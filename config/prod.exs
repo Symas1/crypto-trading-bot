@@ -1,7 +1,7 @@
 import Config
 
-config :naive,
-  binance_client: Binance
+# Do not print debug messages in production
+config :logger, level: :info
 
-config :streamer,
-  binance_client: Binance
+# Runtime production configuration, including reading
+# of environment variables, is done on config/runtime.exs.

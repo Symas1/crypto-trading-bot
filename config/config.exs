@@ -1,56 +1,58 @@
-# This file is responsible for configuring your umbrella
-# and **all applications** and their dependencies with the
-# help of the Config module.
+# This file is responsible for configuring your application
+# and its dependencies with the aid of the Config module.
 #
-# Note that all applications in your umbrella share the
-# same configuration and dependencies, which is why they
-# all use the same configuration file. If you want different
-# configurations or dependencies per app, it is best to
-# move said applications out of the umbrella.
+# This configuration file is loaded before any dependency and
+# is restricted to this project.
+
+# General application configuration
 import Config
 
-# Sample configuration:
-#
-#     config :logger, :console,
-#       level: :info,
-#       format: "$date $time [$level] $metadata$message\n",
-#       metadata: [:user_id]
-#
+config :hedgehog,
+  binance_client: Hedgehog.Exchange.BinanceMock,
+  ecto_repos: [Hedgehog.Repo],
+  generators: [timestamp_type: :utc_datetime],
+  exchanges: [
+    binance_mock: [
+      use_cached_exchange_info: true
+    ]
+  ],
+  strategy: [
+    naive: [
+      defaults: %{
+        chunks: 5,
+        budget: 1000,
+        buy_down_interval: "0.0001",
+        profit_interval: "-0.0012",
+        rebuy_interval: "0.001"
+      }
+    ]
+  ]
 
-config :logger,
+# Configures the endpoint
+config :hedgehog, HedgehogWeb.Endpoint,
+  url: [host: "localhost"],
+  adapter: Bandit.PhoenixAdapter,
+  render_errors: [
+    formats: [json: HedgehogWeb.ErrorJSON],
+    layout: false
+  ],
+  pubsub_server: Hedgehog.PubSub,
+  live_view: [signing_salt: "rNh6p6eE"]
+
+# Configures Elixir's Logger
+config :logger, :console,
+  format: "$time $metadata[$level] $message\n",
+  metadata: [:request_id],
   level: :info
 
-config :data_warehouse,
-  ecto_repos: [DataWarehouse.Repo]
-
-config :naive,
-  ecto_repos: [Naive.Repo],
-  binance_client: BinanceMock,
-  trading: %{
-    defaults: %{
-      chunks: 5,
-      budget: 1000,
-      buy_down_interval: "0.0001",
-      profit_interval: "-0.0012",
-      rebuy_interval: "0.001"
-    }
-  }
-
-config :streamer,
-  binance_client: BinanceMock,
-  ecto_repos: [Streamer.Repo]
-
-config :data_warehouse, DataWarehouse.Repo, database: "warehouse.db"
-config :naive, Naive.Repo, database: "naive.db"
-config :streamer, Streamer.Repo, database: "streamer.db"
+# Use Jason for JSON parsing in Phoenix
+config :phoenix, :json_library, Jason
 
 # Import secrets with Binance keys
 if File.exists?("config/secrets.exs") do
   import_config("secrets.exs")
 end
 
-config :binance_mock,
-  root: File.cwd!(),
-  use_cached_exchange_info: false
-
+# Import environment specific config. This must remain at the bottom
+# of this file so it overrides the configuration defined above.
 import_config "#{config_env()}.exs"
