@@ -66,6 +66,10 @@ defmodule Hedgehog.MixProject do
       test: ["ecto.create --quiet", "ecto.migrate --quiet", "test"],
       "test.unit": [
         "test --only unit --no-start"
+      ],
+      "test.integration": [
+        "ecto.reset",
+        "test --only integration"
       ]
     ]
   end

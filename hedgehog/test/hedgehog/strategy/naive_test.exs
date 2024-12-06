@@ -2,7 +2,9 @@ defmodule Hedgehog.Strategy.NaiveTest do
   use ExUnit.Case
   doctest Hedgehog.Strategy.Naive
 
+  alias Hedgehog.Strategy.Naive
   alias Hedgehog.Exchange.Order
+  alias Hedgehog.Data.Collector
   alias Hedgehog.Exchange.TradeEvent
   alias Hedgehog.Strategy.Naive.Settings, as: TradingSettings
   alias Hedgehog.Repo
@@ -33,7 +35,7 @@ defmodule Hedgehog.Strategy.NaiveTest do
     Naive.start_trading(symbol)
 
     # Step 3 - Start storing orders
-    DataWarehouse.start_storing("ORDERS", "XRPUSDT")
+    Collector.start_storing("ORDERS", "XRPUSDT")
     :timer.sleep(5000)
 
     # Step 4 - Broadcast events
@@ -81,7 +83,7 @@ defmodule Hedgehog.Strategy.NaiveTest do
         where: o.symbol == ^symbol
       )
 
-    [buy_1, sell_1, buy_2] = DataWarehouse.Repo.all(query)
+    [buy_1, sell_1, buy_2] = Repo.all(query)
 
     assert buy_1 == ["0.43070000", "BUY", "FILLED"]
     assert sell_1 == ["0.43190000", "SELL", "FILLED"]
