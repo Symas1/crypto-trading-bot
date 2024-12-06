@@ -18,6 +18,8 @@ defmodule Hedgehog.Application do
       Hedgehog.Data.Collector.CollectorSupervisor,
       Hedgehog.Streamer.Binance.Supervisor,
       Hedgehog.Strategy.Naive.Supervisor,
+      {DynamicSupervisor,
+       strategy: :one_for_one, name: Hedgehog.Data.Aggregator.DynamicSupervisor},
       # Start a worker by calling: Hedgehog.Worker.start_link(arg)
       # {Hedgehog.Worker, arg},
       # Start to serve requests, typically the last entry
