@@ -11,7 +11,8 @@ defmodule Hedgehog.MixProject do
       aliases: aliases(),
       deps: deps(),
       preferred_cli_env: [
-        "test.unit": :test
+        "test.unit": :test,
+        "test.integration": :test
       ]
     ]
   end
