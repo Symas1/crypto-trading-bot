@@ -63,7 +63,7 @@ base_settings = %{
 
 Logger.info("[naive strategy] Inserting default settings for symbols")
 
-maps = symbols |> Enum.map(&(%{base_settings | symbol: &1["symbol"]}))
+maps = symbols |> Enum.map(&%{base_settings | symbol: &1["symbol"]})
 
 {count, nil} = Repo.insert_all(NaiveStrategySettings, maps)
 
